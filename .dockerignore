@@ -1,0 +1,5 @@
+tmp
+.git
+.dockerignore
+.ruby-version
+TODO.md
