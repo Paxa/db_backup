@@ -5,6 +5,7 @@ _early alpha, don't use it_
 ### Supported databases:
 
 * Postgres (pg_dump)
+* Influxdb (influxd backup)
 
 ### Supported storages:
 

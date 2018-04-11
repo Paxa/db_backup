@@ -23,6 +23,8 @@ module DbBackup
     end
 
     def cmd(command, *args)
+      args = args.flatten
+
       env_vars = args.last.is_a?(Hash) ? args.pop : {}
       env_vars = env_vars.dup
       modified_env_vars = env_vars.dup

@@ -71,8 +71,10 @@ module DbBackup
     value = value.to_s
     if value.start_with?("postgres://")
       return DbBackup::Exporters::Postgres.new(options.merge(source: value))
+    elsif value.start_with?("influx://", "influxdb://")
+      return DbBackup::Exporters::Influxdb.new(options.merge(source: value))
     else
-      raise ArgumentError, "Unknown source format, supported protocols: postgres"
+      raise ArgumentError, "Unknown source format, supported protocols: postgres, influx"
     end
   end
 
@@ -88,3 +90,4 @@ end
 
 require_relative './db_backup/uploaders/b2'
 require_relative './db_backup/exporters/postgres'
+require_relative './db_backup/exporters/influxdb'

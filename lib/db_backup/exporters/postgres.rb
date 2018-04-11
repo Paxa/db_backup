@@ -33,8 +33,8 @@ class DbBackup::Exporters::Postgres
       "-p", @pg_options[:port],
       "-d", @pg_options[:database],
       "-Fc", # binary format
-      "| gzip -9 ",
-      "> #{@tmp_dir}/dump.sql.gz"
+      "--compress=7",
+      "--file=#{@tmp_dir}/dump.sql.gz"
     ]
 
     res =  DbBackup.cmd(:pg_dump, *args, @env_vars)
@@ -42,7 +42,7 @@ class DbBackup::Exporters::Postgres
     size_mb = (File.size(File.join(@tmp_dir, "dump.sql.gz")) / 1024.0 / 1024.0).round(3)
     DbBackup.logger.info "Generated file #{size_mb} MiB"
 
-    return @tmp_dir # File.join(@tmp_dir, "dump.sql.gz")
+    return @tmp_dir
   end
 
   def remove_tmp_files
@@ -66,17 +66,9 @@ class DbBackup::Exporters::Postgres
       "-c", "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema = '#{@pg_options[:schema]}'"
     ]
 
-    res =  DbBackup.cmd(:psql, *args, @env_vars)
+    res = DbBackup.cmd(:psql, *args, @env_vars)
     tables = res[:stdout].split("\n")[2...-1].map(&:strip)
     p tables
-  end
-
-  def b2_command(command, *args)
-    unless File.exist?(@auth_file_path)
-      DbBackup.cmd("b2", "authorize-account", @b2_options[:account_id], @b2_options[:account_token], @env_vars)
-    end
-
-    DbBackup.cmd("b2", command, *args, @env_vars)
   end
 
 end
