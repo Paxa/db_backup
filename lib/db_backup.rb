@@ -82,12 +82,15 @@ module DbBackup
     value = value.to_s
     if value.start_with?("b2://")
       return DbBackup::Uploaders::B2.new(options.merge(target: value))
+    elsif value.start_with?("file://")
+      return DbBackup::Uploaders::LocalFile.new(options.merge(source: value))
     else
-      raise ArgumentError, "Unknown source format, supported protocols: b2"
+      raise ArgumentError, "Unknown source format, supported protocols: b2, file"
     end
   end
 end
 
 require_relative './db_backup/uploaders/b2'
+require_relative './db_backup/uploaders/local_file'
 require_relative './db_backup/exporters/postgres'
 require_relative './db_backup/exporters/influxdb'

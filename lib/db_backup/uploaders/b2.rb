@@ -29,14 +29,14 @@ class DbBackup::Uploaders::B2
   end
 
   def sync(local_folder, remote_path)
-    target_folder = File.join(@b2_options[:path_wothout_slash], remote_path)
+    target_folder = ::File.join(@b2_options[:path_wothout_slash], remote_path)
 
     files_count = 0
     files_size = 0
     Dir["#{local_folder}/**/*"].count do |file|
-      if File.file?(file)
+      if ::File.file?(file)
         files_count += 1
-        files_size += File.size(file)
+        files_size += ::File.size(file)
       end
     end
     files_size_mb = (files_size / 1024.0 / 1024.0).round(3)
@@ -48,7 +48,7 @@ class DbBackup::Uploaders::B2
   end
 
   def b2_command(command, *args)
-    unless File.exist?(@auth_file_path)
+    unless ::File.exist?(@auth_file_path)
       DbBackup.cmd("b2", "authorize-account", @b2_options[:account_id], @b2_options[:account_token], @env_vars)
     end
 

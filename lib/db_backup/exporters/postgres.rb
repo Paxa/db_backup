@@ -1,4 +1,5 @@
 require 'uri'
+require 'fileutils'
 
 class DbBackup::Exporters::Postgres
 
@@ -39,7 +40,7 @@ class DbBackup::Exporters::Postgres
 
     res =  DbBackup.cmd(:pg_dump, *args, @env_vars)
 
-    size_mb = (File.size(File.join(@tmp_dir, "dump.sql.gz")) / 1024.0 / 1024.0).round(3)
+    size_mb = (::File.size(::File.join(@tmp_dir, "dump.sql.gz")) / 1024.0 / 1024.0).round(3)
     DbBackup.logger.info "Generated file #{size_mb} MiB"
 
     return @tmp_dir

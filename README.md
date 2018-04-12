@@ -6,6 +6,7 @@ _early alpha, don't use it_
 
 * Postgres (pg_dump)
 * Influxdb (influxd backup)
+* Local File
 
 ### Supported storages:
 

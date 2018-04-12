@@ -1,4 +1,5 @@
 require 'uri'
+require 'fileutils'
 
 class DbBackup::Exporters::Influxdb
 
@@ -22,8 +23,8 @@ class DbBackup::Exporters::Influxdb
       "-host", "#{@inf_options[:host]}:#{@inf_options[:port] || 8088}"
     ]
 
-    DbBackup.cmd(:influxd, ["backup"] + connect_params + [File.join(@tmp_dir, 'meta')])
-    DbBackup.cmd(:influxd, ["backup"] + connect_params + ["-database", @inf_options[:database], File.join(@tmp_dir, 'data')])
+    DbBackup.cmd(:influxd, ["backup"] + connect_params + [::File.join(@tmp_dir, 'meta')])
+    DbBackup.cmd(:influxd, ["backup"] + connect_params + ["-database", @inf_options[:database], ::File.join(@tmp_dir, 'data')])
 
     DbBackup.logger.info "Generated backup"
 
@@ -33,7 +34,7 @@ class DbBackup::Exporters::Influxdb
   def remove_tmp_files
     if @tmp_dir
       DbBackup.logger.debug "Removing #{@tmp_dir}"
-      #FileUtils.remove_entry_secure(@tmp_dir)
+      FileUtils.remove_entry_secure(@tmp_dir)
     end
   end
 
