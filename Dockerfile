@@ -15,7 +15,7 @@ RUN apk upgrade --update-cache --available && \
     rm -rf /var/cache/apk/*
 
 # Backblaze B2 cloud storage
-RUN pip install b2
+RUN pip install 'b2>=1.3.4'
 RUN b2 version
 
 # google libs are too big
