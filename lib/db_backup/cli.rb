@@ -14,6 +14,9 @@ class DbBackup::CLI
     if ENV['BACKUP_PREFIX']
       args[:prefix] = ENV['BACKUP_PREFIX']
     end
+    if ENV['BACKUP_KEEP_NUM']
+      args[:keep_num] = ENV['BACKUP_KEEP_NUM']
+    end
 
     if ENV['BACKUP_VERBOSE']
       args[:verbose] = ["1", "true", "yes", "ya"].include?(ENV['BACKUP_VERBOSE'].downcase)
@@ -45,10 +48,12 @@ class DbBackup::CLI
       c.example 'mysql', 'db_backup backup --source mysql://user:pass@host/db --target s3://key:token@bucket/db_backups'
       c.option '--source VAL', 'Backup source (env var BACKUP_SOURCE)'
       c.option '--target VAL', 'Upload target (env var BACKUP_TARGET)'
-      c.option '--prefix [PATH]', 'Optional. Folder prefix, default is "%FT%T%:z" (support strftime format) (env var BACKUP_PREFIX)'
+      c.option '--keep-num NUM', 'Numbers of backups to keep'
+      c.option '--prefix [PATH]', %{Optional. Folder prefix, default is "#{DbBackup::DEFAULT_DATE_FORMAT}" } \
+                                  '(support strftime format) (env var BACKUP_PREFIX)'
       c.action do |args, options|
-        options.default(default_args_from_env(prefix: "%FT%T%:z"))
-        DbBackup.perform_backup(options)
+        options.default(default_args_from_env(prefix: DbBackup::DEFAULT_DATE_FORMAT))
+        DbBackup.perform_backup(options.__hash__)
       end
     end
 
@@ -61,21 +66,23 @@ class DbBackup::CLI
       c.option '--target VAL', 'Upload target. Can be b2://key:token@bucket/path (env var BACKUP_SOURCE)'
       c.action do |args, options|
         options.default(default_args_from_env)
-        DbBackup.list_remote_objects(options)
+        DbBackup.list_remote_objects(options.__hash__)
       end
     end
 
-    #command :claen_old do |c|
-    #  c.syntax = 'db_backup claen_old [options]'
-    #  c.summary = ''
-    #  c.description = ''
-    #  c.example 'description', 'command example'
-    #  c.option '--some-switch', 'Some switch that does something'
-    #  c.action do |args, options|
-    #    # Do something or c.when_called Db_backup::Commands::Claen_old
-    #  end
-    #end
-    #
+    command :claen_old do |c|
+      c.syntax = 'db_backup claen_old [options]'
+      c.summary = ''
+      c.description = ''
+      c.option '--source VAL', 'Backup source (env var BACKUP_SOURCE)'
+      c.option '--target VAL', 'Upload target (env var BACKUP_TARGET)'
+      c.option '--keep-num NUM', 'Numbers of backups to keep'
+      c.action do |args, options|
+        options.default(default_args_from_env)
+        DbBackup.remove_old_backups(options.__hash__)
+      end
+    end
+
     #command :remove_all do |c|
     #  c.syntax = 'db_backup remove_all [options]'
     #  c.summary = ''

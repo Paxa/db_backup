@@ -21,10 +21,40 @@ class DbBackup::Uploaders::B2
     }.freeze
   end
 
-  def ls
-    res = b2_command(:ls, @b2_options[:bucket_name], @b2_options[:path_wothout_slash])
+  def ls(options = {})
+    cmd_options = []
+    if options[:recursive]
+      cmd_options << '--recursive'
+    end
+
+    path = [@b2_options[:path_wothout_slash], options[:folder]].compact.join("/")
+
+    res = b2_command(:ls, *cmd_options, @b2_options[:bucket_name], path)
+
     if res[:success]
-      puts res[:stdout].split("\n")
+      res[:stdout].split("\n").map do |line|
+        line.sub(@b2_options[:path_wothout_slash] + "/", '')
+      end
+    else
+      []
+    end
+  end
+
+  def rn_dirs(remote_paths)
+    res = b2_command("ls", "--long", "--recursive", @b2_options[:bucket_name], @b2_options[:path_wothout_slash])
+    all_files = res[:stdout].split("\n").map do |line|
+      m = line.match(/(?<file_id>[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+(?<file_name>.+)$/)
+      {
+        name: m['file_name'].sub(@b2_options[:path_wothout_slash] + "/", ''),
+        id: m['file_id']
+      }
+    end
+
+    all_files.each do |file|
+      if remote_paths.any? {|folder| file[:name].start_with?(folder) }
+        DbBackup.logger.info("Deleting file #{file[:name]}")
+        b2_command("delete-file-version", file[:id])
+      end
     end
   end
 

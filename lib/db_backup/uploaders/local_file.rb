@@ -12,8 +12,8 @@ class DbBackup::Uploaders::LocalFile
   end
 
   def ls
-    Dir.entries(@path).each do |file|
-      puts file unless file == "." || file == ".."
+    Dir.entries(@path).select do |file|
+      file != "." && file != ".."
     end
   end
 
@@ -26,6 +26,13 @@ class DbBackup::Uploaders::LocalFile
       target_path = ::File.join(@path, remote_path, file)
       DbBackup.logger.info("Copy #{file} to #{target_path}")
       FileUtils.cp_r(::File.join(local_folder, file), target_path, preserve: true)
+    end
+  end
+
+  def rn_dirs(remote_paths)
+    remote_paths.each do |path|
+      DbBackup.logger.info("Deleting folder #{path}")
+      FileUtils.rm_r(::File.join(@path, path))
     end
   end
 end

@@ -54,15 +54,18 @@ module DbBackup
       start_time  = Time.now.to_f
 
       Open3.popen3(env_vars, command) do |stdin, stdout, stderr, wait_thr|
+        io_threads = []
         if DbBackup.verbose_logging?
-          pipe_stream(stdout, STDOUT, buffer: stdout_str)
-          pipe_stream(stderr, STDERR, buffer: stderr_str)
+          io_threads << pipe_stream(stdout, STDOUT, buffer: stdout_str)
+          io_threads << pipe_stream(stderr, STDERR, buffer: stderr_str)
         else
-          record_stream(stdout, buffer: stdout_str)
-          record_stream(stderr, buffer: stderr_str)
+          io_threads << record_stream(stdout, buffer: stdout_str)
+          io_threads << record_stream(stderr, buffer: stderr_str)
         end
 
         exit_status = wait_thr.value
+
+        io_threads.each(&:join)
 
         if exit_status != 0
           DbBackup.logger.warn "Process #{exit_status.pid} exit with code #{exit_status.exitstatus}"
