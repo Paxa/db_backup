@@ -57,6 +57,7 @@ module DbBackup
     uploader.sync(backup_local_folder, target_prefix)
 
     if options[:keep_num]
+      logger.info "Cleaning old backups"
       remove_old_backups(options, uploader)
     end
   ensure
