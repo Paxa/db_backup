@@ -33,3 +33,4 @@ ADD . /opt/app
 RUN bundle install --retry 10 --system
 
 ENTRYPOINT ["bin/db_backup"]
+CMD "backup"
