@@ -73,8 +73,8 @@ module DbBackup
     keep_num = options[:keep_num].to_i
     backups = uploader.ls.sort
 
-    backups_to_delete = backups[keep_num .. -1] || []
-    if backups_to_delete.size > 0
+    if backups.size > keep_num
+      backups_to_delete = backups.first(backups.size - keep_num)
       logger.info("Deleting old backups #{backups_to_delete.join(", ")}")
       uploader.rn_dirs(backups_to_delete)
     end
