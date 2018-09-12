@@ -76,7 +76,7 @@ module DbBackup
     if backups.size > keep_num
       backups_to_delete = backups.first(backups.size - keep_num)
       logger.info("Deleting old backups #{backups_to_delete.join(", ")}")
-      uploader.rn_dirs(backups_to_delete)
+      uploader.rm_dirs(backups_to_delete)
     end
   end
 
@@ -94,8 +94,10 @@ module DbBackup
       return DbBackup::Exporters::Postgres.new(options.merge(source: value))
     elsif value.start_with?("influx://", "influxdb://")
       return DbBackup::Exporters::Influxdb.new(options.merge(source: value))
+    elsif value.start_with?("mysql://")
+      return DbBackup::Exporters::Mysql.new(options.merge(source: value))
     else
-      raise ArgumentError, "Unknown source format, supported protocols: postgres, influx"
+      raise ArgumentError, "Unknown source format, supported protocols: postgres, influx, mysql"
     end
   end
 
@@ -107,14 +109,18 @@ module DbBackup
       return DbBackup::Uploaders::WebDav.new(options.merge(target: value))
     elsif value.start_with?("file://")
       return DbBackup::Uploaders::LocalFile.new(options.merge(source: value))
+    elsif value.start_with?("s3://")
+      return DbBackup::Uploaders::S3.new(options.merge(source: value))
     else
-      raise ArgumentError, "Unknown source format, supported protocols: b2, file"
+      raise ArgumentError, "Unknown source format, supported protocols: b2, s3, file, https (webdav)"
     end
   end
 end
 
 require_relative './db_backup/uploaders/b2'
+require_relative './db_backup/uploaders/s3'
 require_relative './db_backup/uploaders/local_file'
 require_relative './db_backup/uploaders/web_dav'
 require_relative './db_backup/exporters/postgres'
 require_relative './db_backup/exporters/influxdb'
+require_relative './db_backup/exporters/mysql'

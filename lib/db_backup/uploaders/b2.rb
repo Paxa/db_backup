@@ -40,7 +40,7 @@ class DbBackup::Uploaders::B2
     end
   end
 
-  def rn_dirs(remote_paths)
+  def rm_dirs(remote_paths)
     res = b2_command("ls", "--long", "--recursive", @b2_options[:bucket_name], @b2_options[:path_wothout_slash])
     all_files = res[:stdout].split("\n").map do |line|
       m = line.match(/(?<file_id>[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+(?<file_name>.+)$/)

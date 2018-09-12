@@ -61,7 +61,7 @@ class DbBackup::Uploaders::WebDav
     end
   end
 
-  def rn_dirs(remote_paths)
+  def rm_dirs(remote_paths)
     remote_paths.each do |remote_path|
       DbBackup.logger.info("Deleting remote folder #{remote_path}")
       req("DELETE", File.join(@prefix, remote_path))

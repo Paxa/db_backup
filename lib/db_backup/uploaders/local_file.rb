@@ -29,7 +29,7 @@ class DbBackup::Uploaders::LocalFile
     end
   end
 
-  def rn_dirs(remote_paths)
+  def rm_dirs(remote_paths)
     remote_paths.each do |path|
       DbBackup.logger.info("Deleting folder #{path}")
       FileUtils.rm_r(::File.join(@path, path))
