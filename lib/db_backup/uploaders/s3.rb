@@ -7,21 +7,13 @@ class DbBackup::Uploaders::S3
   def initialize(options = {})
     @s3_url = options[:source].sub(%r{^s3://}, 'https://')
     @s3_path = URI.parse(@s3_url).path.sub(/^\//, '')
-    #@s3_path = "s3/#{@s3_bucket}"
 
     @s3_url.sub!(/\/#{@s3_path}/, '')
     @s3_path = "s3/" + @s3_path
-    p [@s3_path, @s3_url]
-
-    #@s3_path = @s3_bucket.split("/")[1..-1].join("/")
-    #if @s3_path != ''
-    #  @s3_bucket.sub!(/\/#{@s3_path}$/, '')
-    #end
 
     @env_vars = {
       "MC_HOSTS_s3" => @s3_url
     }
-    #@config_alias = "s3"
   end
 
   def ls(options = {})

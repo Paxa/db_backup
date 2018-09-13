@@ -10,7 +10,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main"       > /etc/apk/repos
     cat /etc/apk/repositories
 
 RUN apk upgrade --update-cache --available && \
-    apk add curl openssh-client rsync lftp bash ruby ruby-bundler py-pip && \
+    apk add curl openssh-client rsync lftp bash ruby ruby-bundler ruby-json py-pip && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
 
