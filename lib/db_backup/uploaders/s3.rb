@@ -39,7 +39,7 @@ class DbBackup::Uploaders::S3
   def rm_dirs(remote_paths)
     remote_paths.each do |path|
       DbBackup.logger.info("Deleting folder #{@s3_path}/#{path}")
-      s3_command(:mb, "#{@s3_path}/#{path}" "-r")
+      s3_command(:rm, "#{@s3_path}/#{path}", "-r", "--force")
     end
   end
 

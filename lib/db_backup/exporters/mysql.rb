@@ -16,19 +16,31 @@ class DbBackup::Exporters::Mysql
   end
 
   def get_tables
-    output = run_sql('SELECT TABLE_NAME AS db FROM information_schema.TABLES WHERE TABLE_SCHEMA = "garuda_project";')
+    output = run_sql(%{SELECT TABLE_NAME AS db FROM information_schema.TABLES WHERE TABLE_SCHEMA = "#{@my_options[:database]}";})
     output.split("\n").map(&:strip)
   end
 
+  def base_cmd_options
+    @base_cmd_options ||= begin
+      args = [
+        "-u", @my_options[:user],
+        "--host=#{@my_options[:host]}"
+      ]
+      if @my_options[:password]
+        args << "--password=#{@my_options[:password]}"
+      end
+      if @my_options[:port]
+        args << "--port=#{@my_options[:port]}"
+      end
+
+      args
+    end
+  end
+
   def run_sql(sql)
-    args = [
-      "-u", @my_options[:user],
+    args = base_cmd_options + [
       "-Bse", sql
     ]
-    if @my_options[:password]
-      args << "--password=#{@my_options[:password]}"
-    end
-
     res = DbBackup.cmd(:mysql, *args, @my_options[:database], {})
     res[:stdout]
   end
@@ -40,8 +52,7 @@ class DbBackup::Exporters::Mysql
     FileUtils.mkdir_p("#{@tmp_dir}/structure")
     FileUtils.mkdir_p("#{@tmp_dir}/data")
 
-    args = [
-      "-u", @my_options[:user],
+    args = base_cmd_options + [
       "--compress",
       "--skip-comments",
       "--complete-insert",
