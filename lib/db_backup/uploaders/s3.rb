@@ -31,7 +31,7 @@ class DbBackup::Uploaders::S3
 
   def sync(local_folder, remote_path)
     DbBackup.logger.info("Creating folder #{@s3_path}/#{remote_path}")
-    s3_command(:mb, "#{@s3_path}/#{remote_path}")
+    s3_command(:mb, "#{@s3_path}/#{remote_path}/")
 
     s3_command(:mirror, local_folder, "#{@s3_path}/#{remote_path}")
   end

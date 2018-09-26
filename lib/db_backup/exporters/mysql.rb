@@ -69,19 +69,25 @@ class DbBackup::Exporters::Mysql
       unless res[:success]
         DbBackup.logger.error(res[:stdout] + "\n" + res[:error])
       end
-
-      data_file = "#{@tmp_dir}/data/#{table}.sql.gz"
-      dump_args = args + [
-        "--no-create-info"
-      ]
-      res = DbBackup.cmd(:mysqldump, *dump_args, @my_options[:database], table, "| gzip -c > #{data_file}", {})
-      unless res[:success]
-        DbBackup.logger.error(res[:stdout] + "\n" + res[:error])
-      end
-
-      size_mb = (::File.size(data_file) / 1024.0 / 1024.0).round(3)
-      DbBackup.logger.info "Generated file #{table}.sql.gz -- #{size_mb} MiB"
     end
+
+    data_file = "#{@tmp_dir}/data.sql.gz"
+    dump_args = args + [
+      "--no-create-info"
+    ]
+    if ENV["MYSQL_SKIP_TABLES_DATA"]
+      skip_tables = ENV["MYSQL_SKIP_TABLES_DATA"].split(",")
+      skip_tables.each do |table|
+        dump_args << "--ignore-table=#{@my_options[:database]}.#{table}"
+      end
+    end
+    res = DbBackup.cmd(:mysqldump, *dump_args, @my_options[:database], "| gzip -c > #{data_file}", {})
+    unless res[:success]
+      DbBackup.logger.error(res[:stdout] + "\n" + res[:error])
+    end
+
+    size_mb = (::File.size(data_file) / 1024.0 / 1024.0).round(3)
+    DbBackup.logger.info "Generated file #{data_file} -- #{size_mb} MiB"
 
     return @tmp_dir
   end
