@@ -20,6 +20,7 @@ class DbBackup::Exporters::Influxdb
     @tmp_dir = Dir.mktmpdir
 
     connect_params = [
+      "-portable",
       "-host", "#{@inf_options[:host]}:#{@inf_options[:port] || 8088}"
     ]
 
